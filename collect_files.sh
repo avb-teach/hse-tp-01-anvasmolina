@@ -95,4 +95,4 @@ EOF
 # Execute Python script
 echo "$PYTHON_SCRIPT" | python3 - "$INPUT_DIR" "$OUTPUT_DIR" "$MAX_DEPTH"
 
-exit $?
+exit $? 

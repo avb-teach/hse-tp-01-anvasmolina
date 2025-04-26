@@ -35,6 +35,10 @@ fi
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
+# Normalize input directory path to avoid issues with trailing slashes
+INPUT_DIR=$(realpath "$INPUT_DIR")
+OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
+
 # Python script to handle file collection
 PYTHON_SCRIPT=$(cat << 'EOF'
 import os
@@ -46,7 +50,14 @@ def collect_files(input_dir, output_dir, max_depth):
     file_counts = defaultdict(int)
     
     for root, dirs, files in os.walk(input_dir):
-        current_depth = root[len(input_dir):].count(os.sep)
+        # Normalize root path and calculate depth
+        root = os.path.abspath(root)
+        input_dir = os.path.abspath(input_dir)
+        # Count separators after input_dir, adding 1 if not at root
+        rel_path = root[len(input_dir):].lstrip(os.sep)
+        current_depth = rel_path.count(os.sep) if rel_path else 0
+        
+        # Skip if depth exceeds max_depth
         if max_depth >= 0 and current_depth > max_depth:
             continue
             
@@ -77,4 +88,4 @@ EOF
 # Execute Python script
 echo "$PYTHON_SCRIPT" | python3 - "$INPUT_DIR" "$OUTPUT_DIR" "$MAX_DEPTH"
 
-exit $? 
+exit $?

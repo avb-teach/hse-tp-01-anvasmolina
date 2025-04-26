@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if Python 3.12.3 is available
+# Check if Python 3 is available
 if ! command -v python3 &> /dev/null; then
     echo "Python3 is required but not installed"
     exit 1
@@ -35,6 +35,16 @@ fi
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
 
+# Normalize paths
+INPUT_DIR=$(realpath "$INPUT_DIR")
+OUTPUT_DIR=$(realpath "$OUTPUT_DIR")
+
+# Check if output is inside input directory
+if [[ "$OUTPUT_DIR" == "$INPUT_DIR"* ]]; then
+    echo "Error: Output directory cannot be inside input directory"
+    exit 1
+fi
+
 # Python script to handle file collection
 PYTHON_SCRIPT=$(cat << 'EOF'
 import os
@@ -44,9 +54,17 @@ from collections import defaultdict
 
 def collect_files(input_dir, output_dir, max_depth):
     file_counts = defaultdict(int)
+    input_dir = os.path.abspath(input_dir)
     
     for root, dirs, files in os.walk(input_dir):
-        current_depth = root[len(input_dir):].count(os.sep)
+        # Calculate current depth relative to input_dir
+        rel_path = os.path.relpath(root, input_dir)
+        if rel_path == '.':
+            current_depth = 0
+        else:
+            current_depth = len(rel_path.split(os.sep))
+        
+        # Skip if depth exceeds max_depth
         if max_depth >= 0 and current_depth > max_depth:
             continue
             
@@ -77,4 +95,4 @@ EOF
 # Execute Python script
 echo "$PYTHON_SCRIPT" | python3 - "$INPUT_DIR" "$OUTPUT_DIR" "$MAX_DEPTH"
 
-exit $? 
+exit $?

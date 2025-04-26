@@ -56,28 +56,25 @@ def collect_files(input_dir, output_dir, max_depth):
     file_counts = defaultdict(int)
     input_dir = os.path.abspath(input_dir)
     
-    for root, dirs, files in os.walk(input_dir):
-        # Calculate current depth relative to input_dir
+    # Walk through directories sorted by path
+    for root, dirs, files in sorted(os.walk(input_dir)):
+        # Calculate current depth
         rel_path = os.path.relpath(root, input_dir)
-        if rel_path == '.':
-            current_depth = 0
-        else:
-            current_depth = len(rel_path.split(os.sep))
+        current_depth = 0 if rel_path == '.' else len(rel_path.split(os.sep))
         
-        # Skip if depth exceeds max_depth
         if max_depth >= 0 and current_depth > max_depth:
             continue
             
-        for file in files:
+        # Process files in sorted order
+        for file in sorted(files):
             src_path = os.path.join(root, file)
             base, ext = os.path.splitext(file)
-            file_counts[file] += 1
             
-            if file_counts[file] > 1:
-                new_file = f"{base}{file_counts[file]}{ext}"
-            else:
-                new_file = file
-                
+            # Get new file name
+            file_counts[file] += 1
+            count = file_counts[file]
+            new_file = f"{base}{count}{ext}" if count > 1 else file
+            
             dst_path = os.path.join(output_dir, new_file)
             
             try:
@@ -95,4 +92,4 @@ EOF
 # Execute Python script
 echo "$PYTHON_SCRIPT" | python3 - "$INPUT_DIR" "$OUTPUT_DIR" "$MAX_DEPTH"
 
-exit $? 
+exit $?

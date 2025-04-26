@@ -56,8 +56,12 @@ def collect_files(input_dir, output_dir, max_depth):
     file_counts = defaultdict(int)
     input_dir = os.path.abspath(input_dir)
     
-    # Walk through directories sorted by path
-    for root, dirs, files in sorted(os.walk(input_dir)):
+    # Walk through directories in sorted order
+    for root, dirs, files in os.walk(input_dir):
+        # Sort directories and files to ensure consistent order
+        dirs.sort()
+        files.sort()
+        
         # Calculate current depth
         rel_path = os.path.relpath(root, input_dir)
         current_depth = 0 if rel_path == '.' else len(rel_path.split(os.sep))
@@ -65,16 +69,17 @@ def collect_files(input_dir, output_dir, max_depth):
         if max_depth >= 0 and current_depth > max_depth:
             continue
             
-        # Process files in sorted order
-        for file in sorted(files):
+        for file in files:
             src_path = os.path.join(root, file)
             base, ext = os.path.splitext(file)
             
-            # Get new file name
-            file_counts[file] += 1
-            count = file_counts[file]
-            new_file = f"{base}{count}{ext}" if count > 1 else file
-            
+            # Get new file name - increment counter only if file exists
+            if os.path.exists(os.path.join(output_dir, file)):
+                file_counts[file] += 1
+                new_file = f"{base}{file_counts[file]}{ext}"
+            else:
+                new_file = file
+                
             dst_path = os.path.join(output_dir, new_file)
             
             try:

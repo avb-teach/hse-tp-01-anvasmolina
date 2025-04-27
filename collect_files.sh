@@ -20,7 +20,8 @@ copying() {
 
   while [ -e "$dest_file" ]; do
       dest_file="$output_dir/${base}_${cnt}.${extension}"
-      cnt=$((cnt + 1))
+      let cnt=cnt+1
+   
   done
   cp "$source_file" "$dest_file"
 }

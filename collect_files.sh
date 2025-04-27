@@ -11,13 +11,15 @@ output_dir="$2"
 copying() {
   local source_file="$1"
   local dest_file="$output_dir/$(basename "$source_file")"
-  local name_part="${source_file##*/}" 
-  local extension="${name_part##*.}"  
-  local base_name="${name_part%.*}"   
+
+  local name="${source_file##*/}"
+  local base="${name%.*}" 
+  local extension="${name##*.}"  
+ 
   local cnt=1
 
   while [ -e "$dest_file" ]; do
-      dest_file="$output_dir/${base_name}_${cnt}.${extension}"
+      dest_file="$output_dir/${base}_${cnt}.${extension}"
       cnt=$((cnt + 1))
   done
   cp "$source_file" "$dest_file"
@@ -27,7 +29,7 @@ for file in $(find "$input_dir" -type f); do
   copying "$file"
 done
 
-printf "Файлы успешно скопированы из '%s' в '%s'.\n" "$input_dir" "$output_dir"
+printf "Файлы скопированы из '%s' в '%s'.\n" "$input_dir" "$output_dir"
 exit 0
 
 

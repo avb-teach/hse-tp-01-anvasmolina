@@ -11,10 +11,13 @@ output_dir="$2"
 copying() {
   local source_file="$1"
   local dest_file="$output_dir/$(basename "$source_file")"
+  local name_part="${source_file##*/}" 
+  local extension="${name_part##*.}"  
+  local base_name="${name_part%.*}"   
   local cnt=1
 
   while [ -e "$dest_file" ]; do
-      dest_file="$output_dir/$(basename "$source_file" | cut -d '.' -f 1)_${cnt}.${source_file##*.}"
+      dest_file="$output_dir/${base_name}_${cnt}.${extension}"
       cnt=$((cnt + 1))
   done
   cp "$source_file" "$dest_file"

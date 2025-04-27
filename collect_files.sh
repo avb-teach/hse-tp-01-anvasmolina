@@ -8,7 +8,7 @@ fi
 input_dir="$1"
 output_dir="$2"
 
-[[ ! -d "$output_dir" ]] && mkdir -p "$output_dir"
+
 
 
 

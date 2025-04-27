@@ -20,7 +20,7 @@ copying() {
       dest_file="$output_dir/${base_name}_${cnt}.${extension}"
       cnt=$((cnt + 1))
   done
-  cp "$source_file" "$dest_file"
+  rsync "$source_file" "$dest_file"
 }
 
 for file in $(find "$input_dir" -type f); do
